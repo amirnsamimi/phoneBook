@@ -11,16 +11,32 @@ const useFetch = async (url) => {
   return await response.json();
 };
 
+const fullSerach = ref(false)
+const searchState = ref(false);
+const fullText = ref("");
 const state = ref(STATES.IDLE);
 const users = ref([]);
-const getUsers = async (limit = 10) => {
+const activePage = ref(1);
+const filter = ref(false)
+const pagination = ref([]);
+const limit = ref(10);
+const limitPerPage = ref(10);
+const startPage = ref(0);
+const stepper = ref(8);
+const endPage = ref(8);
+const female = ref(false)
+const getUsers = async (url) => {
   users.value = [];
   state.value = STATES.PEND;
-  const data = await useFetch(
-    `https://dummyjson.com/users?limit=${limit}&skip=${limit - 10}`
+  const data = await useFetch( url ? url :
+    `https://dummyjson.com/users?limit=${limitPerPage.value}&skip=${
+      limit.value - 10
+    }`  
   );
-
   if (data.users && data.users.length) {
+    pagination.value = new Array(Math.ceil(data.total / limitPerPage.value))
+      .fill()
+      .map((_, i) => i + 1);
     users.value = data.users;
     state.value = STATES.SUCC;
   } else if (data.users) {
@@ -28,77 +44,193 @@ const getUsers = async (limit = 10) => {
   }
 };
 
+const getNewUsers = (page) => {
+  limit.value = page * limitPerPage.value;
+  activePage.value = page;
+  getUsers();
+};
+
+const getNewUserHandler = (direction) => {
+  if (direction === "prev") {
+    activePage.value !== 1 && activePage.value--;
+    limit.value = activePage.value * limitPerPage.value;
+  } else {
+    activePage.value < pagination.value.length && activePage.value++;
+    limit.value = activePage.value * limitPerPage.value;
+  }
+  getUsers();
+};
+
 onMounted(() => {
   getUsers();
 });
 
-// const repeatedUsers = computed(()=>{
-//  return users.value.filter((i)=> i.last_name === "کیمیایی")
-// })
+const paginationLeftLogic = computed(() => {
+  const data = [...pagination.value];
+  if (activePage.value === endPage.value) {
+    startPage.value += 4;
+    endPage.value += 4;
+  } else if (
+    activePage.value !== 1 &&
+    activePage.value === startPage.value + 1
+  ) {
+    startPage.value -= 4;
+    endPage.value -= 4;
+  }
+  return data.splice(startPage.value, stepper.value);
+});
 
-// const usersInYazd = computed(()=>{
-//   return users.value.filter(i=>i.province === "یزد")
-// })
 
-// const allProvinces = computed(()=>{
-//   const provinces = []
-//   users.value.forEach((i)=>{
-//    if(!provinces.includes(i.province)){
-//     provinces.push(i.province)
-//    }
-//   })
-//   return provinces
-// })
+const searchUser = computed(()=>{
+ 
+    console.log(female.value)
+if(!fullSerach.value && !female.value){
+    return users.value.filter((user)=>user.firstName.toLowerCase().includes(fullText.value.toLowerCase()) || user.lastName.toLowerCase().includes(fullText.value.toLowerCase()) || user.phone.replace(" ","").replaceAll("-","").includes(fullText.value.toLowerCase()))
+  }else{
+    return users.value.filter((user)=> user.gender === "female")}
+  
+})
 
-// const groupByProvince = computed(()=>{
+const femaleHandler = () => {
+female.value = !female.value
+}
 
-//   const objProvince = {}
-//   allProvinces.value.forEach((i)=>{
-//     objProvince[i] = []
-//   })
-//   users.value.forEach((user)=>{
-//     objProvince[user.province].push(user)
-//   })
+watch(fullText,()=>{
+  if(fullSerach){
+    getUsers(`https://dummyjson.com/users/search?q=${fullText.value}`)
+  }
+})
 
-// })
+watch(female,()=>{
+  console.log(female.value)
+})
+
 </script>
 <template>
   <main>
     <section>
       <div class="phoneBookOwner">
         <h1>Amir</h1>
-        <img src="" alt="" />
-        <h2>Amir Samimi</h2>
-        <p>amirnsamimi@gmail.com</p>
-        <div>
+        <div class="personalInfo">
+          <img src="./assets/boy.svg" alt="profile" />
+          <h2>Amir Samimi</h2>
+          <p>amirnsamimi@gmail.com</p>
+        </div>
+        <div class="personalAddInfo">
           <div>
-            <svg><use /></svg> date
+            <svg height="24" width="24">
+              <use xlink:href="./assets/sprite.svg#calendar" />
+            </svg>
+            08-04-1995
           </div>
           <div>
-            <svg><use /></svg> phone
+            <svg height="24" width="24">
+              <use xlink:href="./assets/sprite.svg#phone" />
+            </svg>
+            +98 912 4971667
           </div>
           <div>
-            <svg><use /></svg> address
+            <svg height="24" width="24">
+              <use xlink:href="./assets/sprite.svg#location" />
+            </svg>
+            Tehran, Iran
           </div>
         </div>
       </div>
       <div class="controllers">
         <h2>Address Book</h2>
-        <div class="controll-buttons"><button class="controllButton">filter</button><button class="controllButton">search</button><button class="addButton">new contact</button></div>
+        <div class="controll-buttons">
+          <button @click.prevent="()=>filter = !filter" class="controllButton">
+            <svg height="20" width="20">
+              <use xlink:href="./assets/sprite.svg#filter" />
+            </svg>
+            <label v-if="filter" class="checkboxLabel" @click.prevent.stop="femaleHandler"><input type="checkbox"  /><div class="faker"></div>only Females</label>
+            </button
+          ><button
+            @click.prevent="() => (searchState = !searchState)"
+            class="searchlButton"
+          >
+            <svg height="24" width="24">
+              <use xlink:href="./assets/sprite.svg#search" />
+            </svg>
+
+            <input
+            type="text"
+            @click.prevent.stop
+            v-model="fullText"
+              :style="`${searchState && 'width:200px'}`"
+              v-if="searchState"
+              placeholder="search for contact ..."
+            /> <label  v-if="searchState" class="checkboxLabel" @click.stop="()=>fullSerach = !fullSerach"><input type="checkbox"  /><div class="faker"></div>Full Search</label></button>
+          <!-- <button class="addButton">
+            <svg height="24" width="24">
+              <use xlink:href="./assets/sprite.svg#add" />
+            </svg>
+            new contact
+          </button> -->
+        </div>
       </div>
       <div class="contactList">
-        <ul>
-          <li v-for="user in users">
-            <img src="" alt="" />
-            <div>
-              <h2>{{ user.firstName }} {{ user.lastName }}</h2>
-              <p>{{ user.company?.title }}</p>
+        <div class="contactContainer">
+          <div class="pagination">
+            <div class="paginationButtons">
+              <div v-for="page in paginationLeftLogic">
+                <button
+                  @click.prevent="getNewUsers(page)"
+                  :class="`${
+                    activePage === page ? 'paginationActive' : 'paginationBtn'
+                  }`"
+                >
+                  {{ page }}
+                </button>
+              </div>
             </div>
-            <div>{{ user.phoneNumber }}</div>
-            <div>{{ user.email }}</div>
-          </li>
-        </ul>
-        <div>
+            <div>
+              <button @click.prevent="getNewUserHandler('prev')" class="icon">
+                <svg height="24" width="24">
+                  <use xlink:href="./assets/sprite.svg#prev" />
+                </svg>
+              </button>
+              <button @click.prevent="getNewUserHandler('next')" class="icon">
+                <svg height="24" width="24">
+                  <use xlink:href="./assets/sprite.svg#next" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <ul class="userItems">
+            <li class="userItem" v-for="user in searchUser">
+              <div class="userInfo">
+                <img
+                  v-if="user.gender === 'female'"
+                  src="./assets/girl.svg"
+                  alt="female"
+                />
+                <img
+                  v-else="user.gender === 'male'"
+                  src="./assets/boy.svg"
+                  alt="male"
+                />
+                <div>
+                  <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+                  <p>{{ user.company?.title }}</p>
+                </div>
+              </div>
+              <a class="userPhone" :href="`tel:${user.phone}`">{{
+                user.phone
+              }}</a>
+              <div class="userEmail">
+                <a :href="`mailto:${user.email}`">{{ user.email }}</a>
+                <button class="primaryBtn">
+                  <svg height="24" width="24">
+                    <use xlink:href="./assets/sprite.svg#info" />
+                  </svg>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- <div>
         <img src="" alt="" />
         <h2>Amir Samimi</h2>
         <p>best friend</p>
@@ -130,67 +262,246 @@ onMounted(() => {
             <img src="" alt="" />
           </div>
         </div>
+      </div> -->
       </div>
-      </div>
-     
-      <div v-if="state === STATES.PEND">در حال دریافت اطلاعات ...</div>
-      <div v-else-if="state === STATES.EMPT">هیچ کاربری پیدا نشد</div>
-     
     </section>
   </main>
 </template>
 <style>
-ul{
-  list-style-type: none;
-
+input[type="text"] {
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  height: 1.75rem;
+  padding: 0.5rem;
+  outline: none;
+  width: 0px;
+  transition: all 1s;
 }
-section{
+
+
+.checkboxLabel{
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0.5rem;
+  font-size: 12px;
+}
+
+input[type="checkbox"]{
+  display: none;
+}
+input[type="checkbox"] ~ .faker{
+border: 1px solid black;
+width: 20px;
+height: 20px;
+z-index: 10;
+border-radius: 0.25rem;
+background-color: white;
+}
+
+input[type="checkbox"]:checked ~ .faker{
+
+background-color: #55c875;
+}
+
+.icon {
+  background-color: black;
+  border: none;
+  margin-inline: 0.5rem;
+  width: 24px;
+  height: 24px;
+}
+button {
+  cursor: pointer;
+}
+
+.primaryBtn {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+}
+
+ul {
+  list-style-type: none;
+}
+section {
   display: grid;
   width: 100%;
+  min-height: 100dvh;
   grid-template: repeat(12, 1fr) / repeat(12, 1fr);
 }
 
-.phoneBookOwner{
-  grid-column:1 / 3 span;
+.phoneBookOwner {
+  grid-column: 1 / 3 span;
   grid-row: 1 / 12 span;
-  border-right: #9A9A9A 2px solid;
+  border-right: #9a9a9a 2px solid;
+  padding: 1rem;
 }
 
-.controllers{
-  grid-column: 4 / 12 span ;
+.phoneBookOwner h1 {
+  font-size: 2rem;
+}
+
+.personalInfo {
+  display: grid;
+  justify-content: center;
+  margin-block: 2rem;
+  justify-items: center;
+}
+
+.personalInfo img {
+  margin-bottom: 0.5rem;
+  height: 100px;
+  width: 100px;
+  object-fit: cover;
+}
+.personalAddInfo {
+  display: grid;
+  gap: 1rem;
+}
+.personalAddInfo > div {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #7c7c7c;
+  font-family: "Lato";
+  font-weight: 500;
+}
+
+.controllers {
+  grid-column: 4 / 12 span;
   grid-row: 1 / 1 span;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-inline: 2rem;
-  border-bottom: #9A9A9A 2px solid;
+  border-bottom: #9a9a9a 2px solid;
 }
-.controll-buttons{
+.controll-buttons {
   display: flex;
   gap: 1rem;
 }
-.addButton{
-  background-color: #55C875;
+.addButton {
+  background-color: #55c875;
   border: none;
   width: max-content;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.controllButton{
-  background-color: #D9D9D9;
+.controllButton {
+  background-color: #d9d9d9;
   border: none;
   width: max-content;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
+  display: flex; 
+  gap: 0.5rem;
 }
 
-.contactList{
-  grid-column: 4 / 12 span;
+.searchlButton {
+  background-color: #d9d9d9;
+  border: none;
+  width: max-content;
+  display: flex;
+  gap: 1rem;
+
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.contactList {
+  grid-column: 4 / 9 span;
   grid-row: 2 / 11 span;
-  background-color: blue;
+  padding: 2rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+}
+.paginationButtons {
+  gap: 1rem;
   display: flex;
 }
+.contactContainer {
+  display: grid;
+  gap: 2rem;
+  width: 100%;
 
+}
 
+.userItems {
+  width: 100%;
+
+  display: grid;
+  gap: 2rem;
+}
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: 300px;
+}
+
+.userPhone {
+  text-align: justify;
+}
+.userItem {
+  border: 1px solid #9a9a9a;
+  padding: 1rem;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  gap: 1rem;
+}
+
+.paginationActive {
+  width: 24px;
+  height: 24px;
+  background-color: #55c875;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.paginationBtn {
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.userItem img {
+  width: 80px;
+  height: 80px;
+}
+
+.userEmail {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+  cursor: pointer;
+}
 </style>
