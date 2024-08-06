@@ -1,0 +1,16 @@
+
+
+*{
+  font-family: "Jua";
+  font-weight: 300;
+  margin: 0;
+  padding: 0;
+}
+
+main{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
