@@ -306,7 +306,8 @@ background-color: #55c875;
 }
 
 .icon {
-  background-color: black;
+  background-color: transparent;
+  stroke: black;
   border: none;
   margin-inline: 0.5rem;
   width: 24px;
