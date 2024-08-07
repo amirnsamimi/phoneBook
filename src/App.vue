@@ -221,10 +221,8 @@ watch(female,()=>{
               }}</a>
               <div class="userEmail">
                 <a :href="`mailto:${user.email}`">{{ user.email }}</a>
-                <button class="primaryBtn">
-                  <svg height="24" width="24">
-                    <use xlink:href="@/assets/sprite.svg#info" />
-                  </svg>
+                <button class="infoBtn">
+                 i
                 </button>
               </div>
             </li>
@@ -323,7 +321,9 @@ button {
   justify-content: center;
   align-items: center;
   border: none;
+  
 }
+
 
 ul {
   list-style-type: none;
@@ -505,4 +505,18 @@ a {
   color: black;
   cursor: pointer;
 }
+
+
+
+.infoBtn{
+  background-color: white;
+  height: 24px;
+  width: 24px;
+  border: 2px solid black;
+  border-radius: 0.5rem;
+  font-size: 14px;
+
+
+}
+
 </style>
