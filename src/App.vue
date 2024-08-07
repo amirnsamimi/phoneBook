@@ -112,26 +112,26 @@ watch(female,()=>{
       <div class="phoneBookOwner">
         <h1>Amir</h1>
         <div class="personalInfo">
-          <img src="./assets/boy.svg" alt="profile" />
+          <img src="@/assets/boy.svg" alt="profile" />
           <h2>Amir Samimi</h2>
           <p>amirnsamimi@gmail.com</p>
         </div>
         <div class="personalAddInfo">
           <div>
             <svg height="24" width="24">
-              <use xlink:href="./assets/sprite.svg#calendar" />
+              <use xlink:href="@/assets/sprite.svg#calendar" />
             </svg>
             08-04-1995
           </div>
           <div>
             <svg height="24" width="24">
-              <use xlink:href="./assets/sprite.svg#phone" />
+              <use xlink:href="@/assets/sprite.svg#phone" />
             </svg>
             +98 912 4971667
           </div>
           <div>
             <svg height="24" width="24">
-              <use xlink:href="./assets/sprite.svg#location" />
+              <use xlink:href="@/assets/sprite.svg#location" />
             </svg>
             Tehran, Iran
           </div>
@@ -142,7 +142,7 @@ watch(female,()=>{
         <div class="controll-buttons">
           <button @click.prevent="()=>filter = !filter" class="controllButton">
             <svg height="20" width="20">
-              <use xlink:href="./assets/sprite.svg#filter" />
+              <use xlink:href="@/assets/sprite.svg#filter" />
             </svg>
             <label v-if="filter" class="checkboxLabel" @click.prevent.stop="femaleHandler"><input type="checkbox"  /><div class="faker"></div>only Females</label>
             </button
@@ -151,7 +151,7 @@ watch(female,()=>{
             class="searchlButton"
           >
             <svg height="24" width="24">
-              <use xlink:href="./assets/sprite.svg#search" />
+              <use xlink:href="@/assets/sprite.svg#search" />
             </svg>
 
             <input
@@ -188,12 +188,12 @@ watch(female,()=>{
             <div>
               <button @click.prevent="getNewUserHandler('prev')" class="icon">
                 <svg height="24" width="24">
-                  <use xlink:href="./assets/sprite.svg#prev" />
+                  <use xlink:href="@/assets/sprite.svg#prev" />
                 </svg>
               </button>
               <button @click.prevent="getNewUserHandler('next')" class="icon">
                 <svg height="24" width="24">
-                  <use xlink:href="./assets/sprite.svg#next" />
+                  <use xlink:href="@/assets/sprite.svg#next" />
                 </svg>
               </button>
             </div>
@@ -203,12 +203,12 @@ watch(female,()=>{
               <div class="userInfo">
                 <img
                   v-if="user.gender === 'female'"
-                  src="./assets/girl.svg"
+                  src="@/assets/girl.svg"
                   alt="female"
                 />
                 <img
                   v-else="user.gender === 'male'"
-                  src="./assets/boy.svg"
+                  src="@/assets/boy.svg"
                   alt="male"
                 />
                 <div>
@@ -223,7 +223,7 @@ watch(female,()=>{
                 <a :href="`mailto:${user.email}`">{{ user.email }}</a>
                 <button class="primaryBtn">
                   <svg height="24" width="24">
-                    <use xlink:href="./assets/sprite.svg#info" />
+                    <use xlink:href="@/assets/sprite.svg#info" />
                   </svg>
                 </button>
               </div>
