@@ -12,6 +12,8 @@ const useFetch = async (url) => {
 };
 
 const fullSerach = ref(false)
+const buttonSeriesState = ref('contact')
+const selectedContact = ref({})
 const searchState = ref(false);
 const fullText = ref("");
 const state = ref(STATES.IDLE);
@@ -101,8 +103,8 @@ watch(fullText,()=>{
   }
 })
 
-watch(female,()=>{
-  console.log(female.value)
+watch(selectedContact,()=>{
+  console.log(selectedContact)
 })
 
 </script>
@@ -221,51 +223,82 @@ watch(female,()=>{
               }}</a>
               <div class="userEmail">
                 <a :href="`mailto:${user.email}`">{{ user.email }}</a>
-                <button class="infoBtn">
+                <button @click="()=> selectedContact = user" class="infoBtn">
                  i
                 </button>
               </div>
             </li>
           </ul>
         </div>
-        <!-- <div>
-        <img src="" alt="" />
-        <h2>Amir Samimi</h2>
-        <p>best friend</p>
-        <div><button></button><button></button><button></button></div>
-        <div>
-          <div>
-            <h2>Phone Number</h2>
-            <h3>09124971667</h3>
-          </div>
-          <div>
-            <img src="" alt="" />
-          </div>
+        <div v-if="Object.entries(selectedContact).length > 0" class="selectedContact">
+          <div class="personalInfo">
+          <img v-if="selectedContact.gender === 'female'" src="@/assets/girl.svg" alt="profile" />
+          <img v-if="selectedContact.gender === 'male'" src="@/assets/boy.svg" alt="profile" />
+          <h2>{{selectedContact.firstName}} {{ selectedContact.lastName }}</h2>
+          <p>{{selectedContact.email}}</p>
         </div>
-        <div>
+        <div class="buttonSeries"><button @click="()=>buttonSeriesState = 'contact'" :class="`${buttonSeriesState === 'contact' && 'active'}`" >Contact</button><button  @click="()=>buttonSeriesState = 'work'" :class="`${buttonSeriesState === 'work' && 'active'}`">Work</button><button  @click="()=>buttonSeriesState = 'details'" :class="`${buttonSeriesState === 'details' && 'active'}`">Details</button></div>
+        <div class="dataSeries">
           <div>
-            <h2>Phone Number</h2>
-            <h3>09124971667</h3>
+            <h2>{{ buttonSeriesState === "contact" ?  'Phone Number' :  buttonSeriesState === "work" ? "Company Name" : 'University' }}</h2>
+            <h3>{{ buttonSeriesState === "contact" ? selectedContact.phone : buttonSeriesState === "work" ? selectedContact.company?.name : selectedContact.university }}</h3>
           </div>
+    
+   
           <div>
-            <img src="" alt="" />
+            <h2>{{ buttonSeriesState === "contact" ?  'Email Address' :  buttonSeriesState === "work" ? "department" : 'Birth Date' }}</h2>
+            <h3>{{ buttonSeriesState === "contact" ? selectedContact.email : buttonSeriesState === "work" ? selectedContact.company?.department : selectedContact.birthDate }}</h3>
           </div>
+    
+       
+          <div>
+            <h2>{{ buttonSeriesState === "contact" ?  'age' :  buttonSeriesState === "work" ? "address" : 'blood group' }}</h2>
+            <h3>{{ buttonSeriesState === "contact" ? selectedContact.age : buttonSeriesState === "work" ? selectedContact.company?.address?.address : selectedContact.bloodGroup }}</h3>
         </div>
-        <div>
-          <div>
-            <h2>Phone Number</h2>
-            <h3>09124971667</h3>
-          </div>
-          <div>
-            <img src="" alt="" />
-          </div>
-        </div>
-      </div> -->
+      </div>
+      </div>
       </div>
     </section>
   </main>
 </template>
 <style>
+.dataSeries{
+  display: grid;
+  gap: 1rem;
+}
+
+.buttonSeries{
+  background-color: #d9d9d9;
+  padding: 0.25rem;
+  border-radius: 100px;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 0.5rem;
+margin-bottom: 2rem;
+}
+.buttonSeries button{
+  background-color: transparent;
+  color: #7c7c7c;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 1rem;
+}
+
+.buttonSeries button.active{
+  background-color: #55c875;
+  color: black;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 1rem;
+}
+
+.selectedContact{
+  border: 1px solid black;
+  border-radius: 1rem;
+  margin:4rem 1rem;
+  padding: 1rem;
+}
 input[type="text"] {
   border: 1px solid black;
   border-radius: 0.5rem;
