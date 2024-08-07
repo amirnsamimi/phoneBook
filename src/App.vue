@@ -103,17 +103,16 @@ watch(fullText,()=>{
   }
 })
 
-watch(selectedContact,()=>{
-  console.log(selectedContact)
-})
+
 
 </script>
 <template>
   <main>
     <section>
       <div class="phoneBookOwner">
+        <div>
         <h1>Amir</h1>
-        <div class="personalInfo">
+        <div  class=" personalInfo">
           <img src="@/assets/boy.svg" alt="profile" />
           <h2>Amir Samimi</h2>
           <p>amirnsamimi@gmail.com</p>
@@ -138,6 +137,10 @@ watch(selectedContact,()=>{
             Tehran, Iran
           </div>
         </div>
+      </div>
+      <div class="designer">
+       <a href="https://www.figma.com/community/file/1155063894617625185" alt="designer"> Designed By: Thien Nguyen </a>
+      </div>
       </div>
       <div class="controllers">
         <h2>Address Book</h2>
@@ -176,7 +179,7 @@ watch(selectedContact,()=>{
         <div class="contactContainer">
           <div class="pagination">
             <div class="paginationButtons">
-              <div v-for="page in paginationLeftLogic">
+              <div  v-for="page in paginationLeftLogic">
                 <button
                   @click.prevent="getNewUsers(page)"
                   :class="`${
@@ -201,7 +204,7 @@ watch(selectedContact,()=>{
             </div>
           </div>
           <ul class="userItems">
-            <li class="userItem" v-for="user in searchUser">
+            <li  :class="`${!searchUser && 'skeleton'} userItem`" v-for="user in searchUser">
               <div class="userInfo">
                 <img
                   v-if="user.gender === 'female'"
@@ -262,6 +265,51 @@ watch(selectedContact,()=>{
   </main>
 </template>
 <style>
+
+
+.skeleton {
+  background-color: #eee;
+  border-radius: 4px;
+
+}
+
+.skeleton-text {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeleton-img {
+  height: 100px;
+  width: 100%;
+}
+
+.skeleton-avatar {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -500px 0;
+  }
+  100% {
+    background-position: 500px 0;
+  }
+}
+
+div .skeleton {
+  background: linear-gradient(to right, #eee 8%, #ddd 18%, #eee 33%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.designer{
+  display: flex;
+  justify-content: center;
+
+}
 .dataSeries{
   display: grid;
   gap: 1rem;
@@ -373,6 +421,12 @@ section {
   grid-row: 1 / 12 span;
   border-right: #9a9a9a 2px solid;
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
 }
 
 .phoneBookOwner h1 {
@@ -413,6 +467,9 @@ section {
   align-items: center;
   padding-inline: 2rem;
   border-bottom: #9a9a9a 2px solid;
+  position: sticky;
+  top: 0;
+  background-color: white;
 }
 .controll-buttons {
   display: flex;
@@ -437,6 +494,7 @@ section {
   border-radius: 0.5rem;
   display: flex; 
   gap: 0.5rem;
+ 
 }
 
 .searchlButton {
