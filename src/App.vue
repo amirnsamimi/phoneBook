@@ -1,5 +1,8 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
+import OwnerInfoComponent from "./components/ownerInfo.component.vue";
+import UserComponent from "./components/user.component.vue";
+import UserDetailsComponent from "./components/userDetails.component.vue";
 const STATES = {
   IDLE: "initial",
   PEND: "loading",
@@ -11,29 +14,30 @@ const useFetch = async (url) => {
   return await response.json();
 };
 
-const fullSerach = ref(false)
-const buttonSeriesState = ref('contact')
-const selectedContact = ref({})
+const fullSerach = ref(false);
+const selectedContact = ref({});
 const searchState = ref(false);
 const fullText = ref("");
 const state = ref(STATES.IDLE);
 const users = ref([]);
 const activePage = ref(1);
-const filter = ref(false)
+const filter = ref(false);
 const pagination = ref([]);
 const limit = ref(10);
 const limitPerPage = ref(10);
 const startPage = ref(0);
 const stepper = ref(8);
 const endPage = ref(8);
-const female = ref(false)
+const female = ref(false);
 const getUsers = async (url) => {
   users.value = [];
   state.value = STATES.PEND;
-  const data = await useFetch( url ? url :
-    `https://dummyjson.com/users?limit=${limitPerPage.value}&skip=${
-      limit.value - 10
-    }`  
+  const data = await useFetch(
+    url
+      ? url
+      : `https://dummyjson.com/users?limit=${limitPerPage.value}&skip=${
+          limit.value - 10
+        }`
   );
   if (data.users && data.users.length) {
     pagination.value = new Array(Math.ceil(data.total / limitPerPage.value))
@@ -82,75 +86,54 @@ const paginationLeftLogic = computed(() => {
   return data.splice(startPage.value, stepper.value);
 });
 
-
-const searchUser = computed(()=>{
- 
-    console.log(female.value)
-if(!fullSerach.value && !female.value){
-    return users.value.filter((user)=>user.firstName.toLowerCase().includes(fullText.value.toLowerCase()) || user.lastName.toLowerCase().includes(fullText.value.toLowerCase()) || user.phone.replace(" ","").replaceAll("-","").includes(fullText.value.toLowerCase()))
-  }else{
-    return users.value.filter((user)=> user.gender === "female")}
-  
-})
+const searchUser = computed(() => {
+  if (!fullSerach.value && !female.value) {
+    return users.value.filter(
+      (user) =>
+        user.firstName.toLowerCase().includes(fullText.value.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(fullText.value.toLowerCase()) ||
+        user.phone
+          .replace(" ", "")
+          .replaceAll("-", "")
+          .includes(fullText.value.toLowerCase())
+    );
+  } else {
+    return users.value.filter((user) => user.gender === "female");
+  }
+});
 
 const femaleHandler = () => {
-female.value = !female.value
-}
+  female.value = !female.value;
+};
 
-watch(fullText,()=>{
-  if(fullSerach){
-    getUsers(`https://dummyjson.com/users/search?q=${fullText.value}`)
+watch(fullText, () => {
+  if (fullSerach) {
+    getUsers(`https://dummyjson.com/users/search?q=${fullText.value}`);
   }
-})
-
-
-
+});
 </script>
 <template>
   <main>
     <section>
-      <div class="phoneBookOwner">
-        <div>
-        <h1>Amir</h1>
-        <div  class=" personalInfo">
-          <img src="@/assets/boy.svg" alt="profile" />
-          <h2>Amir Samimi</h2>
-          <p>amirnsamimi@gmail.com</p>
-        </div>
-        <div class="personalAddInfo">
-          <div>
-            <svg height="24" width="24">
-              <use xlink:href="@/assets/sprite.svg#calendar" />
-            </svg>
-            08-04-1995
-          </div>
-          <div>
-            <svg height="24" width="24">
-              <use xlink:href="@/assets/sprite.svg#phone" />
-            </svg>
-            +98 912 4971667
-          </div>
-          <div>
-            <svg height="24" width="24">
-              <use xlink:href="@/assets/sprite.svg#location" />
-            </svg>
-            Tehran, Iran
-          </div>
-        </div>
-      </div>
-      <div class="designer">
-       <a href="https://www.figma.com/community/file/1155063894617625185" alt="designer"> Designed By: Thien Nguyen </a>
-      </div>
-      </div>
+      <OwnerInfoComponent firstName="Amir" lastName="Samimi"  /> 
       <div class="controllers">
         <h2>Address Book</h2>
         <div class="controll-buttons">
-          <button @click.prevent="()=>filter = !filter" class="controllButton">
+          <button
+            @click.prevent="() => (filter = !filter)"
+            class="controllButton"
+          >
             <svg height="20" width="20">
               <use xlink:href="@/assets/sprite.svg#filter" />
             </svg>
-            <label v-if="filter" class="checkboxLabel" @click.prevent.stop="femaleHandler"><input type="checkbox"  /><div class="faker"></div>only Females</label>
-            </button
+            <label
+              v-if="filter"
+              class="checkboxLabel"
+              @click.prevent.stop="femaleHandler"
+              ><input type="checkbox" />
+              <div class="faker"></div>
+              only Females</label
+            ></button
           ><button
             @click.prevent="() => (searchState = !searchState)"
             class="searchlButton"
@@ -160,26 +143,35 @@ watch(fullText,()=>{
             </svg>
 
             <input
-            type="text"
-            @click.prevent.stop
-            v-model="fullText"
+              type="text"
+              @click.prevent.stop
+              v-model="fullText"
               :style="`${searchState && 'width:200px'}`"
               v-if="searchState"
               placeholder="search for contact ..."
-            /> <label  v-if="searchState" class="checkboxLabel" @click.stop="()=>fullSerach = !fullSerach"><input type="checkbox"  /><div class="faker"></div>Full Search</label></button>
-          <!-- <button class="addButton">
+            />
+            <label
+              v-if="searchState"
+              class="checkboxLabel"
+              @click.stop="() => (fullSerach = !fullSerach)"
+              ><input type="checkbox" />
+              <div class="faker"></div>
+              Full Search</label
+            >
+          </button>
+          <button class="addButton">
             <svg height="24" width="24">
               <use xlink:href="./assets/sprite.svg#add" />
             </svg>
             new contact
-          </button> -->
+          </button>
         </div>
       </div>
       <div class="contactList">
         <div class="contactContainer">
           <div class="pagination">
             <div class="paginationButtons">
-              <div  v-for="page in paginationLeftLogic">
+              <div v-for="page in paginationLeftLogic">
                 <button
                   @click.prevent="getNewUsers(page)"
                   :class="`${
@@ -204,73 +196,23 @@ watch(fullText,()=>{
             </div>
           </div>
           <ul class="userItems">
-            <li  :class="`${!searchUser && 'skeleton'} userItem`" v-for="user in searchUser">
-              <div class="userInfo">
-                <img
-                  v-if="user.gender === 'female'"
-                  src="@/assets/girl.svg"
-                  alt="female"
-                />
-                <img
-                  v-else="user.gender === 'male'"
-                  src="@/assets/boy.svg"
-                  alt="male"
-                />
-                <div>
-                  <h2>{{ user.firstName }} {{ user.lastName }}</h2>
-                  <p>{{ user.company?.title }}</p>
-                </div>
-              </div>
-              <a class="userPhone" :href="`tel:${user.phone}`">{{
-                user.phone
-              }}</a>
-              <div class="userEmail">
-                <a :href="`mailto:${user.email}`">{{ user.email }}</a>
-                <button @click="()=> selectedContact = user" class="infoBtn">
-                 i
-                </button>
-              </div>
+            <li
+              :class="`${!searchUser && 'skeleton'} userItem`"
+              v-for="user in searchUser"
+            >
+              <UserComponent :user @select="()=>selectedContact = user"/>
             </li>
           </ul>
         </div>
-        <div v-if="Object.entries(selectedContact).length > 0" class="selectedContact">
-          <div class="personalInfo">
-          <img v-if="selectedContact.gender === 'female'" src="@/assets/girl.svg" alt="profile" />
-          <img v-if="selectedContact.gender === 'male'" src="@/assets/boy.svg" alt="profile" />
-          <h2>{{selectedContact.firstName}} {{ selectedContact.lastName }}</h2>
-          <p>{{selectedContact.email}}</p>
-        </div>
-        <div class="buttonSeries"><button @click="()=>buttonSeriesState = 'contact'" :class="`${buttonSeriesState === 'contact' && 'active'}`" >Contact</button><button  @click="()=>buttonSeriesState = 'work'" :class="`${buttonSeriesState === 'work' && 'active'}`">Work</button><button  @click="()=>buttonSeriesState = 'details'" :class="`${buttonSeriesState === 'details' && 'active'}`">Details</button></div>
-        <div class="dataSeries">
-          <div>
-            <h2>{{ buttonSeriesState === "contact" ?  'Phone Number' :  buttonSeriesState === "work" ? "Company Name" : 'University' }}</h2>
-            <h3>{{ buttonSeriesState === "contact" ? selectedContact.phone : buttonSeriesState === "work" ? selectedContact.company?.name : selectedContact.university }}</h3>
-          </div>
-    
-   
-          <div>
-            <h2>{{ buttonSeriesState === "contact" ?  'Email Address' :  buttonSeriesState === "work" ? "department" : 'Birth Date' }}</h2>
-            <h3>{{ buttonSeriesState === "contact" ? selectedContact.email : buttonSeriesState === "work" ? selectedContact.company?.department : selectedContact.birthDate }}</h3>
-          </div>
-    
-       
-          <div>
-            <h2>{{ buttonSeriesState === "contact" ?  'age' :  buttonSeriesState === "work" ? "address" : 'blood group' }}</h2>
-            <h3>{{ buttonSeriesState === "contact" ? selectedContact.age : buttonSeriesState === "work" ? selectedContact.company?.address?.address : selectedContact.bloodGroup }}</h3>
-        </div>
-      </div>
-      </div>
+        <UserDetailsComponent :selectedContact />
       </div>
     </section>
   </main>
 </template>
 <style>
-
-
 .skeleton {
   background-color: #eee;
   border-radius: 4px;
-
 }
 
 .skeleton-text {
@@ -305,27 +247,26 @@ div .skeleton {
   animation: shimmer 1.5s infinite linear;
 }
 
-.designer{
+.designer {
   display: flex;
   justify-content: center;
-
 }
-.dataSeries{
+.dataSeries {
   display: grid;
   gap: 1rem;
 }
 
-.buttonSeries{
+.buttonSeries {
   background-color: #d9d9d9;
   padding: 0.25rem;
   border-radius: 100px;
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 0.5rem;
-margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
 }
-.buttonSeries button{
+.buttonSeries button {
   background-color: transparent;
   color: #7c7c7c;
   padding: 0.5rem 1.25rem;
@@ -333,7 +274,7 @@ margin-bottom: 2rem;
   border-radius: 1rem;
 }
 
-.buttonSeries button.active{
+.buttonSeries button.active {
   background-color: #55c875;
   color: black;
   padding: 0.5rem 1.25rem;
@@ -341,10 +282,10 @@ margin-bottom: 2rem;
   border-radius: 1rem;
 }
 
-.selectedContact{
+.selectedContact {
   border: 1px solid black;
   border-radius: 1rem;
-  margin:4rem 1rem;
+  margin: 4rem 1rem;
   padding: 1rem;
 }
 input[type="text"] {
@@ -357,8 +298,7 @@ input[type="text"] {
   transition: all 1s;
 }
 
-
-.checkboxLabel{
+.checkboxLabel {
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -367,21 +307,20 @@ input[type="text"] {
   font-size: 12px;
 }
 
-input[type="checkbox"]{
+input[type="checkbox"] {
   display: none;
 }
-input[type="checkbox"] ~ .faker{
-border: 1px solid black;
-width: 20px;
-height: 20px;
-z-index: 10;
-border-radius: 0.25rem;
-background-color: white;
+input[type="checkbox"] ~ .faker {
+  border: 1px solid black;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+  border-radius: 0.25rem;
+  background-color: white;
 }
 
-input[type="checkbox"]:checked ~ .faker{
-
-background-color: #55c875;
+input[type="checkbox"]:checked ~ .faker {
+  background-color: #55c875;
 }
 
 .icon {
@@ -402,9 +341,7 @@ button {
   justify-content: center;
   align-items: center;
   border: none;
-  
 }
-
 
 ul {
   list-style-type: none;
@@ -492,9 +429,8 @@ section {
   width: max-content;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  display: flex; 
+  display: flex;
   gap: 0.5rem;
- 
 }
 
 .searchlButton {
@@ -528,7 +464,6 @@ section {
   display: grid;
   gap: 2rem;
   width: 100%;
-
 }
 
 .userItems {
@@ -597,17 +532,12 @@ a {
   cursor: pointer;
 }
 
-
-
-.infoBtn{
+.infoBtn {
   background-color: white;
   height: 24px;
   width: 24px;
   border: 2px solid black;
   border-radius: 0.5rem;
   font-size: 14px;
-
-
 }
-
 </style>
