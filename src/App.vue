@@ -104,6 +104,7 @@ const searchUser = computed(() => {
 
 const femaleHandler = () => {
   female.value = !female.value;
+  console.log(female.value)
 };
 
 watch(fullText, () => {
@@ -112,41 +113,36 @@ watch(fullText, () => {
   }
 });
 
-
 const onSelect = (user) => {
-
-selectedContact.value = user
-
-}
+  selectedContact.value = user;
+};
 
 const onClose = () => {
-  selectedContact.value = {}
-}
-
+  selectedContact.value = {};
+};
 </script>
 <template>
   <main>
     <section>
-      <OwnerInfoComponent firstName="Amir" lastName="Samimi"  /> 
+      <OwnerInfoComponent firstName="Amir" lastName="Samimi" />
       <div class="controllers">
         <h2>Address Book</h2>
         <div class="controll-buttons">
-          <button
-            @click.prevent="() => (filter = !filter)"
+          <div
             class="controllButton"
           >
-            <svg height="20" width="20">
+            <svg  @click.self="() => (filter = !filter)" height="20" width="20">
               <use xlink:href="@/assets/sprite.svg#filter" />
             </svg>
             <label
               v-if="filter"
               class="checkboxLabel"
-              @click.prevent.stop="femaleHandler"
-              ><input type="checkbox" />
+              ><input v-model="female"  type="checkbox" />
               <div class="faker"></div>
               only Females</label
-            ></button
-          ><button
+            >
+          </div>
+          <button
             @click.prevent="() => (searchState = !searchState)"
             class="searchlButton"
           >
@@ -212,7 +208,7 @@ const onClose = () => {
               :class="`${!searchUser && 'skeleton'} userItem`"
               v-for="user in searchUser"
             >
-              <UserComponent :user @select="onSelect"/>
+              <UserComponent :user @select="onSelect" />
             </li>
           </ul>
         </div>
