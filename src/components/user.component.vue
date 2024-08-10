@@ -2,7 +2,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const buttonSeriesState = ref("contact");
+
 
 
 //  defineProps({
@@ -17,7 +17,7 @@ const props = defineProps(["user"])
 const emits = defineEmits(["select"])
 
 const select = ()=>{
-    emits(selectedContact)
+    emits('select', props.user)
 }
 
 

@@ -111,6 +111,18 @@ watch(fullText, () => {
     getUsers(`https://dummyjson.com/users/search?q=${fullText.value}`);
   }
 });
+
+
+const onSelect = (user) => {
+
+selectedContact.value = user
+
+}
+
+const onClose = () => {
+  selectedContact.value = {}
+}
+
 </script>
 <template>
   <main>
@@ -200,11 +212,11 @@ watch(fullText, () => {
               :class="`${!searchUser && 'skeleton'} userItem`"
               v-for="user in searchUser"
             >
-              <UserComponent :user @select="()=>selectedContact = user"/>
+              <UserComponent :user @select="onSelect"/>
             </li>
           </ul>
         </div>
-        <UserDetailsComponent :selectedContact />
+        <UserDetailsComponent :selectedContact @close="onClose" />
       </div>
     </section>
   </main>

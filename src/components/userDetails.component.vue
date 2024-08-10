@@ -1,12 +1,18 @@
 <script setup>
+import { ref } from 'vue';
 
-defineProps({
+const buttonSeriesState = ref("contact");
+const props = defineProps({
     selectedContact:{
         type:Object,
         default:{}
     }
 })
+const emits = defineEmits(["close"])
 
+const close = () => {
+    emits("close")
+}
 
 </script>
 
@@ -16,6 +22,9 @@ defineProps({
           v-if="Object.entries(selectedContact).length > 0"
           class="selectedContact"
         >
+        <button style="background: transparent; border: none; font-size: 16px;" @click="close">
+        x
+    </button>
           <div class="personalInfo">
             <img
               v-if="selectedContact.gender === 'female'"
